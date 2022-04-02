@@ -6,15 +6,19 @@ var ResonseStatusMessage = map[int]string{
 	-2: "Invalid name",
 }
 
+type ReponseStatus struct {
+	Status  int    `json:"status"`
+	Message string `json:"message"`
+}
+
 type CreateRequestBody struct {
-	Name          string `json:"name"`
-	ObjectType    int    `json:"objectType"`
-	ParentFieldId int    `json:"parentFieldId"`
+	Name         string `json:"name" validate:"required"`
+	ObjectType   *int   `json:"objectType" validate:"required,min=1,max=2"`
+	ParentFileId *int   `json:"parentFileId" validate:"required"`
 }
 
 type CreateResponse struct {
 	FileId           int    `json:"fileId"`
 	LastModifiedDate string `json:"lastModifiedDate"`
-	Status           int    `json:"status"`
-	Message          string `json:"message"`
+	ReponseStatus
 }
