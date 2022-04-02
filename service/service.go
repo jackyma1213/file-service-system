@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/go-chi/chi"
 	"github.com/go-playground/validator"
 )
 
@@ -83,5 +84,16 @@ func FileSystemCreateService(db *model.Db, fileId *int) http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
 		json.NewEncoder(w).Encode(res)
+	}
+}
+
+func FileSystemDeleteService(db *model.Db) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		fileId := chi.URLParam(r, "fileId")
+
+		if fileId != nil {
+			db.Remove()
+		}
+
 	}
 }

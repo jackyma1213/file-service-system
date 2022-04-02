@@ -14,6 +14,7 @@ type Item struct {
 
 type Db struct {
 	Items []Item
+	Directory
 }
 
 func New() *Db {
@@ -24,26 +25,36 @@ func (db *Db) Add(item Item) {
 	db.Items = append(db.Items, item)
 }
 
-func (db *Db) Delete(fileId int) {
+func (db *Db) Delete(fileId int) error {
+
+	index, _ := binarySearch(db.Items, fileId)
+
+	db.Items = append(db.Items[:index], db.Items[index+1:]...)
+
+	if index == -1 {
+		return errors.New("not found")
+	}
+
+	return nil
 
 }
 
 func (db *Db) Get(fileId int) (Item, error) {
 
-	if len(db.Items) == 0 {
-		return Item{}, errors.New("no item")
-	}
+	index, _ := binarySearch(db.Items, fileId)
 
-	result, _ := binarySearch(db.Items, fileId)
-
-	if result == -1 {
+	if index == -1 {
 		return Item{}, errors.New("not found")
 	}
 
-	return db.Items[result], nil
+	return db.Items[index], nil
 }
 
 func binarySearch(a []Item, search int) (result int, searchCount int) {
+	if len(a) == 0 {
+		return -1, nil
+	}
+
 	mid := len(a) / 2
 	switch {
 	case len(a) == 0:
