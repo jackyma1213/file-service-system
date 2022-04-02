@@ -1,4 +1,4 @@
-package storage
+package model
 
 type Item struct {
 	FileId           int    `json:"fileId"`
