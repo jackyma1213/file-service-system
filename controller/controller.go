@@ -45,9 +45,7 @@ func fileSystemRouter() http.Handler {
 
 	//Delete a folder or file.
 	//When deleting a folder, all containing files and sub-folders will also be deleted
-	r.Delete("/{field}", func(w http.ResponseWriter, r *http.Request) {
-
-	})
+	r.Delete("/{fileId}", service.FileSystemDeleteService(db))
 
 	//List a folder with a certain fileId with ALL its children including grandchildren.
 	//If the file Id is a file, the fileList contains the file object alone
