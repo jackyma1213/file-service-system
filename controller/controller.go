@@ -10,12 +10,12 @@ import (
 	"file-service/service"
 )
 
-var db *model.Db
-var fileId int = -1 //-1: storage is empty
+var tree *model.Tree
+var fileId int = 0
 
 func Init() *chi.Mux {
 
-	db = model.New()
+	tree = model.New()
 
 	r := chi.NewRouter()
 	r.Use(middleware.AllowContentType("application/json"))
@@ -41,11 +41,11 @@ func fileSystemRouter() http.Handler {
 	r := chi.NewRouter()
 
 	//Create a folder or file
-	r.Post("/create", service.FileSystemCreateService(db, &fileId))
+	r.Post("/create", service.FileSystemCreateService(tree, &fileId))
 
 	//Delete a folder or file.
 	//When deleting a folder, all containing files and sub-folders will also be deleted
-	r.Delete("/{fileId}", service.FileSystemDeleteService(db))
+	r.Delete("/{fileId}", service.FileSystemDeleteService(tree))
 
 	//List a folder with a certain fileId with ALL its children including grandchildren.
 	//If the file Id is a file, the fileList contains the file object alone
@@ -59,7 +59,7 @@ func fileSystemRouter() http.Handler {
 	})
 
 	//Show the file content. Not applicable for folder
-	r.Get("/{field}", func(w http.ResponseWriter, r *http.Request) {
+	r.Get("/{fileId}", func(w http.ResponseWriter, r *http.Request) {
 
 	})
 

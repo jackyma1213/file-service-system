@@ -22,3 +22,9 @@ type CreateResponse struct {
 	LastModifiedDate string `json:"lastModifiedDate"`
 	ReponseStatus
 }
+
+type DeleteResponse struct {
+	FileId int `json:"fileId"`
+	Count  int `json:"count"`
+	ReponseStatus
+}

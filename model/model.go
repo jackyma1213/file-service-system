@@ -2,73 +2,95 @@ package model
 
 import (
 	"errors"
+	"fmt"
 )
 
-type Item struct {
-	FileId           int    `json:"fileId"`
-	Name             string `json:"name"`
-	ObjectType       int    `json:"objectType"`
-	ParentFileId     int    `json:"parentFileId"`
-	LastModifiedDate string `json:"lastModifiedDate"`
+type Node struct {
+	FileId           int
+	Name             string
+	ObjectType       int
+	ParentFileId     int
+	LastModifiedDate string
+	Children         *[]Node
 }
 
-type Db struct {
-	Items []Item
-	Directory
+type Tree struct {
+	Root *Node
 }
 
-func New() *Db {
-	return &Db{}
+func New() *Tree {
+	return &Tree{
+		&Node{
+			FileId:     0,
+			Name:       "root",
+			ObjectType: 1,
+			Children:   &[]Node{},
+		},
+	}
 }
 
-func (db *Db) Add(item Item) {
-	db.Items = append(db.Items, item)
-}
+func (tree *Tree) Find(fileId int, node *Node) *Node {
 
-func (db *Db) Delete(fileId int) error {
-
-	index, _ := binarySearch(db.Items, fileId)
-
-	db.Items = append(db.Items[:index], db.Items[index+1:]...)
-
-	if index == -1 {
-		return errors.New("not found")
+	if node.FileId == fileId {
+		return node
+	} else {
+		var returningNode *Node
+		for _, child := range *node.Children {
+			if returningNode = tree.Find(fileId, &child); returningNode != nil {
+				return returningNode
+			}
+		}
 	}
 
 	return nil
+}
+
+func (tree *Tree) Add(node Node, parentFileId int) {
+	parentNode := tree.Find(parentFileId, tree.Root)
+
+	if parentNode != nil {
+		*parentNode.Children = append(*parentNode.Children, node)
+	}
 
 }
 
-func (db *Db) Get(fileId int) (Item, error) {
+func (tree *Tree) Remove(fileId int) (int, error) {
+	node := tree.Find(fileId, tree.Root)
 
-	index, _ := binarySearch(db.Items, fileId)
+	if node != nil {
+		count := childCount(0, *node)
+		parentNode := tree.Find(node.ParentFileId, tree.Root)
+		fmt.Println("parentNode", parentNode)
+		indexOfNode := indexOf(fileId, *parentNode.Children)
+		*parentNode.Children = removeElement(parentNode.Children, indexOfNode)
 
-	if index == -1 {
-		return Item{}, errors.New("not found")
+		return count, nil
+	} else {
+		return -1, errors.New("not found")
 	}
-
-	return db.Items[index], nil
 }
 
-func binarySearch(a []Item, search int) (result int, searchCount int) {
-	if len(a) == 0 {
-		return -1, nil
+func childCount(count int, node Node) int {
+	children := node.Children
+	for _, child := range *children {
+		count = childCount(count, child)
 	}
+	return count + 1
+}
 
-	mid := len(a) / 2
-	switch {
-	case len(a) == 0:
-		result = -1 // not found
-	case a[mid].FileId > search:
-		result, searchCount = binarySearch(a[:mid], search)
-	case a[mid].FileId < search:
-		result, searchCount = binarySearch(a[mid+1:], search)
-		if result >= 0 { // if anything but the -1 "not found" result
-			result += mid + 1
+func indexOf(targetFileId int, list []Node) int {
+	for k, v := range list {
+		fmt.Println("k", k, v, targetFileId)
+		if targetFileId == v.FileId {
+			return k
 		}
-	default: // a[mid] == search
-		result = mid // found
 	}
-	searchCount++
-	return
+	return -1 //not found.
+}
+
+func removeElement(list *[]Node, index int) []Node {
+	tempList := *list
+	tempList[index] = tempList[len(tempList)-1]
+
+	return tempList[:len(tempList)-1]
 }
