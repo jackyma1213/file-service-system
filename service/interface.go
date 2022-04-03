@@ -52,3 +52,11 @@ type UpdateResponse struct {
 	FileId           int    `json:"fileId"`
 	LastModifiedDate string `json:"lastModifiedDate"`
 }
+
+type GetFileContentResponse struct {
+	ReponseStatus
+	FileId           int    `json:"fileId"`
+	Name             string `json:"name"`
+	LastModifiedDate string `json:"lastModifiedDate"`
+	Content          string `json:"content`
+}

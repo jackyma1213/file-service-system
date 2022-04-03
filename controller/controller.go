@@ -54,8 +54,7 @@ func fileSystemRouter() http.Handler {
 	//Update a file name and/or content or update a folder name. (Update content for a folder is not allowed)
 	r.Post("/update/{fileId}", service.FileSystemUpdateService(tree))
 	//Show the file content. Not applicable for folder
-	r.Get("/{fileId}", func(w http.ResponseWriter, r *http.Request) {
-	})
+	r.Get("/{fileId}", service.FileSystemGetFileService(tree))
 
 	return r
 }

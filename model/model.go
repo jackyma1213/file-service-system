@@ -2,7 +2,6 @@ package model
 
 import (
 	"errors"
-	"fmt"
 	"time"
 )
 
@@ -62,7 +61,6 @@ func (tree *Tree) Remove(fileId int) (int, error) {
 	if node != nil {
 		count := childCount(0, *node)
 		parentNode := tree.Find(node.ParentFileId, tree.Root)
-		fmt.Println("parentNode", parentNode)
 		indexOfNode := indexOf(fileId, *parentNode.Children)
 		*parentNode.Children = removeElement(parentNode.Children, indexOfNode)
 
@@ -75,14 +73,10 @@ func (tree *Tree) Remove(fileId int) (int, error) {
 func (tree *Tree) Update(fileId int, content *string, name *string) (*Node, error) {
 	node := tree.Find(fileId, tree.Root)
 
-	temp := *tree.Root.Children
-
-	fmt.Println("Update", node, temp[0])
-
 	if node != nil {
 
 		if node.ObjectType == 1 && content != nil {
-			return nil, errors.New("not found")
+			return nil, errors.New("not file")
 
 		} else {
 
@@ -105,6 +99,22 @@ func (tree *Tree) Update(fileId int, content *string, name *string) (*Node, erro
 
 }
 
+func (tree *Tree) GetFileContent(fileId int) (*Node, error) {
+	node := tree.Find(fileId, tree.Root)
+	if node != nil {
+
+		if node.ObjectType == 1 {
+			return nil, errors.New("not file")
+
+		} else {
+
+			return node, nil
+		}
+	} else {
+		return nil, nil
+	}
+}
+
 func childCount(count int, node Node) int {
 	children := node.Children
 	for _, child := range *children {
@@ -115,7 +125,6 @@ func childCount(count int, node Node) int {
 
 func indexOf(targetFileId int, list []Node) int {
 	for k, v := range list {
-		fmt.Println("k", k, v, targetFileId)
 		if targetFileId == v.FileId {
 			return k
 		}
