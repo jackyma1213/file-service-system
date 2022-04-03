@@ -36,12 +36,23 @@ func FileSystemGetFileService(tree *model.Tree) http.HandlerFunc {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte("Bad Request"))
-
 			return
+
 		} else if node, err := tree.GetFileContent(fileId); err != nil {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte("Bad Request"))
+			return
+
+		} else if node == nil {
+			var res ReponseStatus
+			res.Status = -1
+			res.Message = ResonseStatusMessage[res.Status]
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(res)
+			return
+
 		} else {
 			res := GetFileContentResponse{
 				FileId:           node.FileId,
@@ -57,7 +68,7 @@ func FileSystemGetFileService(tree *model.Tree) http.HandlerFunc {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(res)
-
+			return
 		}
 
 	}
