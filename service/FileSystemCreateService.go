@@ -54,18 +54,6 @@ func FileSystemCreateService(tree *model.Tree, fileId *int) http.HandlerFunc {
 			return
 		}
 
-		if node := tree.Find(*req.ParentFileId, tree.Root); node == nil {
-			var res ReponseStatus
-
-			res.Status = -1
-			res.Message = ResonseStatusMessage[res.Status]
-
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(res)
-			return
-		}
-
 		*fileId++
 		var dbRequest = model.Node{
 			FileId:           *fileId,
@@ -77,17 +65,30 @@ func FileSystemCreateService(tree *model.Tree, fileId *int) http.HandlerFunc {
 			Content:          new(string),
 		}
 
-		tree.Add(dbRequest, *req.ParentFileId)
-		var res = CreateResponse{
-			FileId:           dbRequest.FileId,
-			LastModifiedDate: dbRequest.LastModifiedDate,
-		}
-		res.Status = 0
-		res.Message = ResonseStatusMessage[res.Status]
+		if err := tree.Add(dbRequest, *req.ParentFileId); err != nil {
+			var res ReponseStatus
 
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(res)
+			res.Status = -1
+			res.Message = ResonseStatusMessage[res.Status]
+
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(res)
+			return
+		} else {
+
+			var res = CreateResponse{
+				FileId:           dbRequest.FileId,
+				LastModifiedDate: dbRequest.LastModifiedDate,
+			}
+			res.Status = 0
+			res.Message = ResonseStatusMessage[res.Status]
+
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusCreated)
+			json.NewEncoder(w).Encode(res)
+			return
+		}
 	}
 
 }

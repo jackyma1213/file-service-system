@@ -32,11 +32,14 @@ func (tree *Tree) Find(fileId int, node *Node) *Node {
 	return nil
 }
 
-func (tree *Tree) Add(node Node, parentFileId int) {
+func (tree *Tree) Add(node Node, parentFileId int) error {
 	parentNode := tree.Find(parentFileId, tree.Root)
 
 	if parentNode != nil {
 		*parentNode.Children = append(*parentNode.Children, node)
+		return nil
+	} else {
+		return errors.New("not found")
 	}
 }
 
@@ -57,6 +60,7 @@ func (tree *Tree) Remove(fileId int) (int, error) {
 
 func (tree *Tree) GetChildren(fileId int) ([]FileObject, error) {
 	node := tree.Find(fileId, tree.Root)
+
 	if node != nil {
 
 		if node.ObjectType == 2 {
@@ -109,7 +113,9 @@ func (tree *Tree) Update(fileId int, content *string, name *string) (*Node, erro
 }
 
 func (tree *Tree) GetFileContent(fileId int) (*Node, error) {
+
 	node := tree.Find(fileId, tree.Root)
+
 	if node != nil {
 
 		if node.ObjectType == 1 {
