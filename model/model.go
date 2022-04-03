@@ -9,8 +9,8 @@ type Node struct {
 	FileId           int
 	Name             string
 	ObjectType       int
-	ParentFileId     int
 	LastModifiedDate string
+	ParentFileId     int
 	Children         *[]Node
 }
 
@@ -69,6 +69,54 @@ func (tree *Tree) Remove(fileId int) (int, error) {
 		return -1, errors.New("not found")
 	}
 }
+
+// func (tree *Tree) GetChildrenById(fileId int) (*[]Node, error) {
+// 	node := tree.Find(fileId, tree.Root)
+
+// 	if node != nil {
+// 		if node.ObjectType == 2 {
+// 			file := [1]Node{
+// 				Node{
+// 					node,
+// 				},
+// 			}
+// 			return &file, nil
+// 		}
+// 		return node.Children, nil
+// 	} else {
+// 		return nil, errors.New("not found")
+// 	}
+// }
+
+// func parentNodeToFileObject(node *Node) FileObjectWithChildren {
+// 	fileObject := FileObjectWithChildren{
+// 		FileId:           node.FileId,
+// 		Name:             node.Name,
+// 		ObjectType:       node.ObjectType,
+// 		LastModifiedDate: node.LastModifiedDate,
+// 	}
+
+// 	if node.ObjectType == 2 {
+// 		fileObject.Children = []FileObject{FileObject{
+// 			FileId:           node.FileId,
+// 			Name:             node.Name,
+// 			ObjectType:       node.ObjectType,
+// 			LastModifiedDate: node.LastModifiedDate,
+// 		}}
+// 		fmt.Println("fileOject", fileObject)
+// 		return fileObject
+// 	} else {
+// 		return FileObjectWithChildren{}
+// 	}
+
+// 	// children := node.Children
+// 	// for _, child := range *children {
+
+// 	// }
+
+// 	// return
+
+// }
 
 func childCount(count int, node Node) int {
 	children := node.Children

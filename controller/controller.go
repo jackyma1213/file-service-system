@@ -49,18 +49,14 @@ func fileSystemRouter() http.Handler {
 
 	//List a folder with a certain fileId with ALL its children including grandchildren.
 	//If the file Id is a file, the fileList contains the file object alone
-	r.Get("/list", func(w http.ResponseWriter, r *http.Request) {
-
-	})
+	r.Get("/list", service.FileSystemGetChildrenService(tree))
 
 	//Update a file name and/or content or update a folder name. (Update content for a folder is not allowed)
 	r.Post("/update/{field}", func(w http.ResponseWriter, r *http.Request) {
 
 	})
-
 	//Show the file content. Not applicable for folder
 	r.Get("/{fileId}", func(w http.ResponseWriter, r *http.Request) {
-
 	})
 
 	return r

@@ -28,3 +28,16 @@ type DeleteResponse struct {
 	Count  int `json:"count"`
 	ReponseStatus
 }
+
+type GetChildrenResponse struct {
+	ReponseStatus
+	FileList []FileObject `json:"fileList"`
+}
+
+type FileObject struct {
+	FileId           int          `json:"fileId"`
+	ObjectType       int          `json:"objectType"`
+	Name             string       `json:"name"`
+	LastModifiedDate string       `json:"lastModifiedDate"`
+	Children         []FileObject `json:"children"`
+}
