@@ -40,21 +40,13 @@ func Init() *chi.Mux {
 func fileSystemRouter() http.Handler {
 	r := chi.NewRouter()
 
-	//Create a folder or file
-	r.Post("/create", service.FileSystemCreateService(tree, &fileId))
-
-	//Delete a folder or file.
-	//When deleting a folder, all containing files and sub-folders will also be deleted
-	r.Delete("/{fileId}", service.FileSystemDeleteService(tree))
-
-	//List a folder with a certain fileId with ALL its children including grandchildren.
-	//If the file Id is a file, the fileList contains the file object alone
 	r.Get("/list", service.FileSystemGetChildrenService(tree))
-
-	//Update a file name and/or content or update a folder name. (Update content for a folder is not allowed)
-	r.Post("/update/{fileId}", service.FileSystemUpdateService(tree))
-	//Show the file content. Not applicable for folder
 	r.Get("/{fileId}", service.FileSystemGetFileService(tree))
+
+	r.Post("/create", service.FileSystemCreateService(tree, &fileId))
+	r.Post("/update/{fileId}", service.FileSystemUpdateService(tree))
+
+	r.Delete("/{fileId}", service.FileSystemDeleteService(tree))
 
 	return r
 }
