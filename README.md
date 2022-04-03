@@ -6,15 +6,11 @@ This project is a file service restful system implemented by Golang (chi).
 
 ## Data structure
 
-<br />
-
 Tree is implemented to simulate the directory
 <br />
 <br />
 
 ## How to Start?
-
-<br />
 
 The server listens on port `3000`
 
