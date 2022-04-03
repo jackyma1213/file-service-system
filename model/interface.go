@@ -13,3 +13,11 @@ type Node struct {
 type Tree struct {
 	Root *Node
 }
+
+type FileObject struct {
+	FileId           int          `json:"fileId"`
+	ObjectType       int          `json:"objectType"`
+	Name             string       `json:"name"`
+	LastModifiedDate string       `json:"lastModifiedDate"`
+	Children         []FileObject `json:"children"`
+}

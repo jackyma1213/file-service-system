@@ -38,7 +38,6 @@ func (tree *Tree) Add(node Node, parentFileId int) {
 	if parentNode != nil {
 		*parentNode.Children = append(*parentNode.Children, node)
 	}
-
 }
 
 func (tree *Tree) Remove(fileId int) (int, error) {
@@ -53,6 +52,31 @@ func (tree *Tree) Remove(fileId int) (int, error) {
 		return count, nil
 	} else {
 		return -1, errors.New("not found")
+	}
+}
+
+func (tree *Tree) GetChildren(fileId int) ([]FileObject, error) {
+	node := tree.Find(fileId, tree.Root)
+	if node != nil {
+
+		if node.ObjectType == 2 {
+			fileList := []FileObject{
+				{
+					FileId:           node.FileId,
+					ObjectType:       node.ObjectType,
+					Name:             *node.Name,
+					LastModifiedDate: node.LastModifiedDate,
+				},
+			}
+			return fileList, nil
+		} else {
+			var fileList = []FileObject{}
+			fileList = getChildren(node.Children)
+			return fileList, nil
+		}
+
+	} else {
+		return nil, errors.New("not found")
 	}
 }
 
@@ -82,7 +106,6 @@ func (tree *Tree) Update(fileId int, content *string, name *string) (*Node, erro
 	} else {
 		return nil, nil
 	}
-
 }
 
 func (tree *Tree) GetFileContent(fileId int) (*Node, error) {
@@ -123,4 +146,17 @@ func removeElement(list *[]Node, index int) []Node {
 	tempList[index] = tempList[len(tempList)-1]
 
 	return tempList[:len(tempList)-1]
+}
+
+func getChildren(children *[]Node) (fileList []FileObject) {
+	for _, child := range *children {
+		fileList = append(fileList, FileObject{
+			FileId:           child.FileId,
+			ObjectType:       child.ObjectType,
+			Name:             *child.Name,
+			LastModifiedDate: child.LastModifiedDate,
+			Children:         getChildren(child.Children),
+		})
+	}
+	return fileList
 }

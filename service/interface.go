@@ -1,5 +1,7 @@
 package service
 
+import "file-service/model"
+
 var ResonseStatusMessage = map[int]string{
 	0:  "success",
 	-1: "File ID not found",
@@ -31,15 +33,7 @@ type DeleteResponse struct {
 
 type GetChildrenResponse struct {
 	ReponseStatus
-	FileList []FileObject `json:"fileList"`
-}
-
-type FileObject struct {
-	FileId           int          `json:"fileId"`
-	ObjectType       int          `json:"objectType"`
-	Name             string       `json:"name"`
-	LastModifiedDate string       `json:"lastModifiedDate"`
-	Children         []FileObject `json:"children"`
+	FileList []model.FileObject `json:"fileList"`
 }
 
 type UpdateRequestBody struct {
@@ -58,5 +52,5 @@ type GetFileContentResponse struct {
 	FileId           int    `json:"fileId"`
 	Name             string `json:"name"`
 	LastModifiedDate string `json:"lastModifiedDate"`
-	Content          string `json:"content`
+	Content          string `json:"content"`
 }
