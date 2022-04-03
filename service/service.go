@@ -49,25 +49,29 @@ func FileSystemCreateService(tree *model.Tree, fileId *int) http.HandlerFunc {
 			return
 		}
 
-		if *req.ParentFileId > 0 {
+		if *req.ParentFileId < 0 {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("Bad Request"))
+			return
+		}
 
-			if node := tree.Find(*req.ParentFileId, tree.Root); node == nil {
-				var res ReponseStatus
+		if node := tree.Find(*req.ParentFileId, tree.Root); node == nil {
+			var res ReponseStatus
 
-				res.Status = -1
-				res.Message = ResonseStatusMessage[res.Status]
+			res.Status = -1
+			res.Message = ResonseStatusMessage[res.Status]
 
-				w.Header().Set("Content-Type", "application/json")
-				w.WriteHeader(http.StatusBadRequest)
-				json.NewEncoder(w).Encode(res)
-				return
-			}
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(res)
+			return
 		}
 
 		*fileId++
 		var dbRequest = model.Node{
 			FileId:           *fileId,
-			Name:             req.Name,
+			Name:             &req.Name,
 			ObjectType:       *req.ObjectType,
 			ParentFileId:     *req.ParentFileId,
 			LastModifiedDate: time.Now().Format(time.RFC3339),
@@ -86,6 +90,7 @@ func FileSystemCreateService(tree *model.Tree, fileId *int) http.HandlerFunc {
 		w.WriteHeader(http.StatusCreated)
 		json.NewEncoder(w).Encode(res)
 	}
+
 }
 
 func FileSystemDeleteService(tree *model.Tree) http.HandlerFunc {
@@ -136,7 +141,6 @@ func FileSystemDeleteService(tree *model.Tree) http.HandlerFunc {
 
 			res.Status = 0
 			res.Message = ResonseStatusMessage[res.Status]
-			fmt.Print("Tree", *tree.Root, res)
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
 			json.NewEncoder(w).Encode(res)
@@ -192,7 +196,7 @@ func FileSystemGetChildrenService(tree *model.Tree) http.HandlerFunc {
 					{
 						FileId:           node.FileId,
 						ObjectType:       node.ObjectType,
-						Name:             node.Name,
+						Name:             *node.Name,
 						LastModifiedDate: node.LastModifiedDate,
 					},
 				}
@@ -232,10 +236,84 @@ func getChildren(children *[]model.Node) (fileList []FileObject) {
 		fileList = append(fileList, FileObject{
 			FileId:           child.FileId,
 			ObjectType:       child.ObjectType,
-			Name:             child.Name,
+			Name:             *child.Name,
 			LastModifiedDate: child.LastModifiedDate,
 			Children:         getChildren(child.Children),
 		})
 	}
 	return fileList
+}
+
+func FileSystemUpdateService(tree *model.Tree) http.HandlerFunc {
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		fileId := chi.URLParam(r, "fileId")
+
+		var req UpdateRequestBody
+
+		err := json.NewDecoder(r.Body).Decode(&req)
+		if err != nil {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("Bad Request"))
+			return
+		}
+
+		if fileId == "" {
+			var res ReponseStatus
+			res.Status = -1
+			res.Message = ResonseStatusMessage[res.Status]
+
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(res)
+			return
+		}
+
+		if fileId, err := strconv.Atoi(fileId); err != nil {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("Bad Request"))
+			return
+
+		} else if fileId < 0 {
+
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("Bad Request"))
+
+			return
+		} else if node, err := tree.Update(fileId, req.Content, req.Name); err != nil {
+
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("Bad Request"))
+			return
+
+		} else if node == nil {
+
+			var res ReponseStatus
+
+			res.Status = -1
+			res.Message = ResonseStatusMessage[res.Status]
+
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(res)
+		} else {
+			res := UpdateResponse{
+				FileId:           node.FileId,
+				LastModifiedDate: node.LastModifiedDate,
+			}
+			temp := *tree.Root.Children
+
+			fmt.Println("tree", temp[0], temp[0].Name, *temp[0].Name)
+			res.Status = 0
+			res.Message = ResonseStatusMessage[res.Status]
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(res)
+		}
+	}
+
 }

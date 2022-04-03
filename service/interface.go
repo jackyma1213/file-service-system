@@ -18,15 +18,15 @@ type CreateRequestBody struct {
 }
 
 type CreateResponse struct {
+	ReponseStatus
 	FileId           int    `json:"fileId"`
 	LastModifiedDate string `json:"lastModifiedDate"`
-	ReponseStatus
 }
 
 type DeleteResponse struct {
+	ReponseStatus
 	FileId int `json:"fileId"`
 	Count  int `json:"count"`
-	ReponseStatus
 }
 
 type GetChildrenResponse struct {
@@ -40,4 +40,15 @@ type FileObject struct {
 	Name             string       `json:"name"`
 	LastModifiedDate string       `json:"lastModifiedDate"`
 	Children         []FileObject `json:"children"`
+}
+
+type UpdateRequestBody struct {
+	Content *string `json:"content"`
+	Name    *string `json:"name"`
+}
+
+type UpdateResponse struct {
+	ReponseStatus
+	FileId           int    `json:"fileId"`
+	LastModifiedDate string `json:"lastModifiedDate"`
 }

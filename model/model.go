@@ -3,15 +3,17 @@ package model
 import (
 	"errors"
 	"fmt"
+	"time"
 )
 
 type Node struct {
 	FileId           int
-	Name             string
+	Name             *string
 	ObjectType       int
 	LastModifiedDate string
 	ParentFileId     int
 	Children         *[]Node
+	Content          *string
 }
 
 type Tree struct {
@@ -22,7 +24,7 @@ func New() *Tree {
 	return &Tree{
 		&Node{
 			FileId:     0,
-			Name:       "root",
+			Name:       nil,
 			ObjectType: 1,
 			Children:   &[]Node{},
 		},
@@ -70,53 +72,38 @@ func (tree *Tree) Remove(fileId int) (int, error) {
 	}
 }
 
-// func (tree *Tree) GetChildrenById(fileId int) (*[]Node, error) {
-// 	node := tree.Find(fileId, tree.Root)
+func (tree *Tree) Update(fileId int, content *string, name *string) (*Node, error) {
+	node := tree.Find(fileId, tree.Root)
 
-// 	if node != nil {
-// 		if node.ObjectType == 2 {
-// 			file := [1]Node{
-// 				Node{
-// 					node,
-// 				},
-// 			}
-// 			return &file, nil
-// 		}
-// 		return node.Children, nil
-// 	} else {
-// 		return nil, errors.New("not found")
-// 	}
-// }
+	temp := *tree.Root.Children
 
-// func parentNodeToFileObject(node *Node) FileObjectWithChildren {
-// 	fileObject := FileObjectWithChildren{
-// 		FileId:           node.FileId,
-// 		Name:             node.Name,
-// 		ObjectType:       node.ObjectType,
-// 		LastModifiedDate: node.LastModifiedDate,
-// 	}
+	fmt.Println("Update", node, temp[0])
 
-// 	if node.ObjectType == 2 {
-// 		fileObject.Children = []FileObject{FileObject{
-// 			FileId:           node.FileId,
-// 			Name:             node.Name,
-// 			ObjectType:       node.ObjectType,
-// 			LastModifiedDate: node.LastModifiedDate,
-// 		}}
-// 		fmt.Println("fileOject", fileObject)
-// 		return fileObject
-// 	} else {
-// 		return FileObjectWithChildren{}
-// 	}
+	if node != nil {
 
-// 	// children := node.Children
-// 	// for _, child := range *children {
+		if node.ObjectType == 1 && content != nil {
+			return nil, errors.New("not found")
 
-// 	// }
+		} else {
 
-// 	// return
+			if content != nil {
 
-// }
+				*node.Content = *content
+			}
+
+			if name != nil {
+				*node.Name = *name
+			}
+			node.LastModifiedDate = time.Now().Format(time.RFC3339)
+
+			return node, nil
+		}
+
+	} else {
+		return nil, nil
+	}
+
+}
 
 func childCount(count int, node Node) int {
 	children := node.Children
